@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"go-adpeba/config"
+	"go-adpeba/helper"
 	"go-adpeba/models"
 	"net/http"
 
@@ -32,13 +33,24 @@ func GetLeaderByID(c *gin.Context) {
 // CreateLeader creates a new leader
 func CreateLeader(c *gin.Context) {
     var input models.Leader
+
     if err := c.ShouldBindJSON(&input); err != nil {
-        c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+        // Format error validasi jadi array
+        errorList := helper.FormatValidationError(err)
+
+        // Gunakan helper response error (versi sudah di-upgrade)
+        helper.RespondBadRequest(c, "Validasi gagal", errorList)
         return
     }
 
-    config.DB.Create(&input)
-    c.JSON(http.StatusCreated, input)
+    // Simpan ke database
+    if err := config.DB.Create(&input).Error; err != nil {
+        helper.RespondInternalError(c, "Gagal menyimpan ke database")
+        return
+    }
+
+    // Response sukses
+    helper.RespondCreated(c, "Data leader berhasil dibuat", input)
 }
 
 // UpdateLeader updates a leader by ID
