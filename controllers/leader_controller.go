@@ -58,11 +58,14 @@ func UpdateLeader(c *gin.Context) {
     var leader models.Leader
     id := c.Param("id")
 
+// Cek apakah data leader dengan ID ini ada
     if err := config.DB.First(&leader, id).Error; err != nil {
-        c.JSON(http.StatusNotFound, gin.H{"error": "Data tidak ditemukan"})
+        helper.RespondNotFound(c, "Data Tidak Ditemukan")
         return
     }
 
+    // Bind input JSON ke struct Leader
+    // Jika ada field yang tidak diisi, akan tetap menggunakan nilai lama
     var input models.Leader
     if err := c.ShouldBindJSON(&input); err != nil {
         c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
