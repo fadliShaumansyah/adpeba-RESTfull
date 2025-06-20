@@ -37,7 +37,7 @@ func ConnectDatabase(dsn string) (*gorm.DB, error) {
 		return nil, err
 	}
 
-	// Jika ingin tetap set global var
+	//  set global var
 	DB = database
 
 	return database, nil
